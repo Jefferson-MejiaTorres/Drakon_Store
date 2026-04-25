@@ -3,7 +3,7 @@ spring:
     name: drakon-store
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ingehex_db
+    url: jdbc:postgresql://localhost:5432/drakon_store
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

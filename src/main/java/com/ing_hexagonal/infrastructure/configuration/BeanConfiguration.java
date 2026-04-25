@@ -1,53 +1,62 @@
 package com.ing_hexagonal.infrastructure.configuration;
 
-import com.ing_hexagonal.domain.api.IEstudianteServicePort;
-import com.ing_hexagonal.domain.api.IMatriculaServicePort;
-import com.ing_hexagonal.domain.spi.IEstudiantePersistencePort;
-import com.ing_hexagonal.domain.spi.IMatriculaPersistencePort;
-import com.ing_hexagonal.domain.usecase.EstudianteUseCase;
-import com.ing_hexagonal.domain.usecase.MatriculaUseCase;
-import com.ing_hexagonal.infrastructure.output.jpa.adapter.EstudianteJpaAdapter;
-import com.ing_hexagonal.infrastructure.output.jpa.adapter.MatriculaJpaAdapter;
-import com.ing_hexagonal.infrastructure.output.jpa.repository.IEstudianteRepository;
-import com.ing_hexagonal.infrastructure.output.jpa.repository.IMatriculaRepository;
+import com.ing_hexagonal.domain.api.IAuthServicePort;
+import com.ing_hexagonal.domain.api.IProductoServicePort;
+import com.ing_hexagonal.domain.spi.IPasswordEncoderPort;
+import com.ing_hexagonal.domain.spi.IJwtProviderPort;
+import com.ing_hexagonal.domain.spi.IProductoPersistencePort;
+import com.ing_hexagonal.domain.spi.IUsuarioPersistencePort;
+import com.ing_hexagonal.domain.usecase.AuthUseCase;
+import com.ing_hexagonal.domain.usecase.ProductoUseCase;
+import com.ing_hexagonal.infrastructure.output.jpa.adapter.PasswordEncoderAdapter;
+import com.ing_hexagonal.infrastructure.output.jpa.adapter.ProductoJpaAdapter;
+import com.ing_hexagonal.infrastructure.output.jpa.adapter.UsuarioJpaAdapter;
+import com.ing_hexagonal.infrastructure.output.security.JwtProviderAdapter;
+import com.ing_hexagonal.infrastructure.output.jpa.repository.IProductoRepository;
+import com.ing_hexagonal.infrastructure.output.jpa.repository.IUsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * Clase de configuración encargada de registrar los casos de uso
  * y ensamblar las dependencias entre puertos y adaptadores.
- /*
  * Su función dentro de la arquitectura hexagonal es conectar
  * el dominio con las implementaciones de infraestructura
  * sin que el núcleo del sistema dependa de Spring directamente.
- /*
- * En el módulo de seguridad, permite instanciar el caso de uso
- * de autenticación con sus respectivas dependencias.
  */
 
 @Configuration
 public class BeanConfiguration {
 
     @Bean
-    public IEstudiantePersistencePort estudiantePersistencePort(IEstudianteRepository estudianteRepository) {
-        return new EstudianteJpaAdapter(estudianteRepository);
+    public IPasswordEncoderPort passwordEncoderPort() {
+        return new PasswordEncoderAdapter();
     }
 
     @Bean
-    public IMatriculaPersistencePort matriculaPersistencePort(IMatriculaRepository matriculaRepository,
-                                                              IEstudianteRepository estudianteRepository) {
-        return new MatriculaJpaAdapter(matriculaRepository, estudianteRepository);
+    public IJwtProviderPort jwtProviderPort() {
+        return new JwtProviderAdapter();
     }
 
     @Bean
-    public IEstudianteServicePort estudianteServicePort(IEstudiantePersistencePort estudiantePersistencePort,
-                                                        IMatriculaPersistencePort matriculaPersistencePort) {
-        return new EstudianteUseCase(estudiantePersistencePort, matriculaPersistencePort);
+    public IUsuarioPersistencePort usuarioPersistencePort(IUsuarioRepository usuarioRepository) {
+        return new UsuarioJpaAdapter(usuarioRepository);
     }
 
     @Bean
-    public IMatriculaServicePort matriculaServicePort(IMatriculaPersistencePort matriculaPersistencePort,
-                                                      IEstudiantePersistencePort estudiantePersistencePort) {
-        return new MatriculaUseCase(matriculaPersistencePort, estudiantePersistencePort);
+    public IProductoPersistencePort productoPersistencePort(IProductoRepository productoRepository) {
+        return new ProductoJpaAdapter(productoRepository);
+    }
+
+    @Bean
+    public IAuthServicePort authServicePort(IUsuarioPersistencePort usuarioPersistencePort,
+                                            IPasswordEncoderPort passwordEncoderPort,
+                                            IJwtProviderPort jwtProviderPort) {
+        return new AuthUseCase(usuarioPersistencePort, passwordEncoderPort, jwtProviderPort);
+    }
+
+    @Bean
+    public IProductoServicePort productoServicePort(IProductoPersistencePort productoPersistencePort) {
+        return new ProductoUseCase(productoPersistencePort);
     }
 }
