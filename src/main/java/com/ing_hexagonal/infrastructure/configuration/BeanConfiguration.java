@@ -11,11 +11,13 @@ import com.ing_hexagonal.domain.usecase.ProductoUseCase;
 import com.ing_hexagonal.infrastructure.output.jpa.adapter.PasswordEncoderAdapter;
 import com.ing_hexagonal.infrastructure.output.jpa.adapter.ProductoJpaAdapter;
 import com.ing_hexagonal.infrastructure.output.jpa.adapter.UsuarioJpaAdapter;
+import com.ing_hexagonal.infrastructure.output.security.CustomUserDetailsService;
 import com.ing_hexagonal.infrastructure.output.security.JwtProviderAdapter;
 import com.ing_hexagonal.infrastructure.output.jpa.repository.IProductoRepository;
 import com.ing_hexagonal.infrastructure.output.jpa.repository.IUsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * Clase de configuración encargada de registrar los casos de uso
@@ -46,6 +48,11 @@ public class BeanConfiguration {
     @Bean
     public IProductoPersistencePort productoPersistencePort(IProductoRepository productoRepository) {
         return new ProductoJpaAdapter(productoRepository);
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(IUsuarioPersistencePort usuarioPersistencePort) {
+        return new CustomUserDetailsService(usuarioPersistencePort);
     }
 
     @Bean
